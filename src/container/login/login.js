@@ -11,7 +11,6 @@ import { login } from '../../redux/user.redux';
   { login }
 )
 class Login extends Component {
-  state = {}
   constructor(props) {
     super(props);
     this.state = {
@@ -33,14 +32,14 @@ class Login extends Component {
     this.props.login(this.state);
   }
   render() {
+    const {redirectTo, msg} = this.props;
     return (
       <div className='container-login'>
-        {this.props.redirectTo ? <Redirect to={this.props.redirectTo}></Redirect> : null}
+        {redirectTo&&redirectTo!=='/login' ? <Redirect to={redirectTo}></Redirect> : null}
         <Logo></Logo>
-        <h2>登录页</h2>
         <WingBlank>
           <List>
-            {this.props.msg ? <p className='error-msg'>{this.props.msg}</p> : null}
+            {msg ? <p className='error-msg'>{msg}</p> : null}
             <InputItem
               onChange={v => this.handleChange('user', v)}
             >用户名</InputItem>
