@@ -10,7 +10,7 @@ import UserCard from '../usercard/usercard';
 )
 class Genius extends Component {
   componentDidMount() {
-    this.props.getUserList('boss');
+    this.props.getUserList('genius');
   }
   render() {
     return (

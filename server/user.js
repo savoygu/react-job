@@ -3,6 +3,7 @@ const router = express.Router();
 const utility = require('utility');
 const model = require('./model');
 const User = model.getModel('user');
+const Chat = model.getModel('chat');
 const _filter = { pwd: 0, __v: 0 };
 
 router.get('/list', (req, res) => {
@@ -14,6 +15,33 @@ router.get('/list', (req, res) => {
   // User.remove({}, function (err, doc) {});
   User.find(condition, function (err, doc) {
     return res.json({code: 0, data: doc});
+  });
+});
+
+router.get('/getmsglist', (req, res) => {
+  const userid = req.cookies.userid;
+
+  User.find({}, function (e, userdoc) {  
+    let users = {};
+    userdoc.forEach(v => {
+      users[v._id] = {name: v.user, avatar: v.avatar};
+    });
+    Chat.find({'$or': [{from: userid}, {to: userid}]}, function (err, doc) {
+      if (!err) {
+        return res.json({code: 0, msgs: doc, users});
+      }
+    });
+  });
+});
+
+router.post('/readmsg', (req, res) => {
+  const userid = req.cookies.userid;
+  const {from} = req.body;
+  Chat.update({from, to: userid}, {'$set': {read: true}}, {'multi': true}, function (err, doc) {
+    if (!err) {
+      return res.json({code: 0, num: doc.nModified});
+    }
+    return res.json({code: 1, msg: '修改失败'});
   });
 });
 

@@ -6,6 +6,7 @@ const AUTH_SUCCESS = 'AUTH_SUCCESS';
 const LOAD_DATA = 'LOAD_DATA';
 const LOGOUT = 'LOGOUT';
 const ERROR_MSG = 'ERROR_MSG';
+const EMPTY_MSG = 'EMPTY_MSG';
 
 const initState = {
   redirectTo: '',
@@ -22,6 +23,8 @@ export function user(state = initState, action) {
       return { ...state, ...action.payload };
     case ERROR_MSG:
       return { ...state, msg: action.msg };
+    case EMPTY_MSG:
+      return { ...state, msg: action.msg, redirectTo: action.redirectTo };
     case LOGOUT:
       return { ...initState, redirectTo: '/login' };
     default:
@@ -34,7 +37,7 @@ function authSuccess(data) {
 }
 
 function errorMsg(msg) {
-  return { msg, type: ERROR_MSG };
+  return { type: ERROR_MSG, msg };
 }
 
 export function loadData(userinfo) {
@@ -43,6 +46,10 @@ export function loadData(userinfo) {
 
 export function logoutSubmit() {
   return { type: LOGOUT };
+}
+
+export function emptyMsg () {
+  return { type: EMPTY_MSG, msg: '', redirectTo: ''};
 }
 
 export function update(data) {

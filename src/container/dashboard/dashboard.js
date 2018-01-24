@@ -6,6 +6,8 @@ import {
   Route
 } from 'react-router-dom';
 
+import { getMsgList, recvMsg } from '../../redux/chat.redux';
+
 import NavLinkBar from '../../component/navlink/navlink';
 import Boss from '../../component/boss/boss';
 import Genius from '../../component/genius/genius';
@@ -13,9 +15,16 @@ import Message from '../../component/msg/msg';
 import User from '../../component/user/user';
 
 @connect(
-  state => state
+  state => state,
+  { getMsgList, recvMsg }
 )
 class Dashboard extends Component {
+  componentDidMount() {
+    if (!this.props.chat.chatmsg.length) {
+      this.props.getMsgList();
+      this.props.recvMsg();
+    }
+  }
   render() {
     const user = this.props.user;
     const { pathname } = this.props.location;
@@ -26,7 +35,7 @@ class Dashboard extends Component {
         icon: 'boss',
         title: 'BOSS列表',
         component: Boss,
-        hide: user.type === 'genius'
+        hide: user.type === 'boss'
       },
       {
         path: '/genius',
@@ -34,7 +43,7 @@ class Dashboard extends Component {
         icon: 'job',
         title: '牛人列表',
         component: Genius,
-        hide: user.type === 'boss'
+        hide: user.type === 'genius'
       },
       {
         path: '/msg',
@@ -54,11 +63,11 @@ class Dashboard extends Component {
     return (
       <div className="container-dashboard">
         <NavBar className='fixed-header' mode='dard'>{navList.find(v => v.path === pathname).title}</NavBar>
-        <div style={{marginTop: '45px'}}>
+        <div style={{ marginTop: '45px' }}>
           <Switch>
             {
               navList.map(v => (
-                <Route key={v.path} path={v.path} component={v.component}/>
+                <Route key={v.path} path={v.path} component={v.component} />
               ))
             }
           </Switch>
