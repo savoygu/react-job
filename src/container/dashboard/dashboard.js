@@ -60,16 +60,13 @@ class Dashboard extends Component {
         component: User
       }
     ];
+    const page = navList.find(v => v.path === pathname);
     return (
       <div className="container-dashboard">
         <NavBar className='fixed-header' mode='dard'>{navList.find(v => v.path === pathname).title}</NavBar>
         <div style={{ marginTop: '45px' }}>
           <Switch>
-            {
-              navList.map(v => (
-                <Route key={v.path} path={v.path} component={v.component} />
-              ))
-            }
+            <Route key={page.path} path={page.path} component={page.component} />
           </Switch>
         </div>
         <NavLinkBar data={navList}></NavLinkBar>
