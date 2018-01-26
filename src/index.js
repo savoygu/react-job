@@ -19,12 +19,19 @@ const store = createStore(reducers, composeWithDevTools({
 	applyMiddleware(thunk)
 	));
 
-ReactDOM.render(
+ReactDOM.hydrate(
 	<Provider store={store}>
 		<BrowserRouter>
 			<App />
 		</BrowserRouter>
 	</Provider>,
 	document.getElementById('root'));
+// ReactDOM.render(
+// 	<Provider store={store}>
+// 		<BrowserRouter>
+// 			<App />
+// 		</BrowserRouter>
+// 	</Provider>,
+// 	document.getElementById('root'));
 
 registerServiceWorker();

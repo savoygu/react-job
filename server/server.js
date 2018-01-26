@@ -19,7 +19,7 @@ import { Provider } from 'react-redux';
 import { StaticRouter } from 'react-router-dom';
 import { createStore, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
-import { renderToString } from 'react-dom/server';
+import { renderToString, renderToNodeStream } from 'react-dom/server';
 import reducers from '../src/reducers';
 import App from '../src/app';
 
@@ -53,17 +53,8 @@ app.use(function (req, res, next) {
   const store = createStore(reducers, compose(
     applyMiddleware(thunk)
   ));
-  let context = {};
-  const markup = renderToString((<Provider store={store}>
-    <StaticRouter
-      location={req.url}
-      context={context}
-    >
-      <App></App>
-    </StaticRouter>
-  </Provider>));
 
-  const pageHTML = `<!DOCTYPE html>
+  res.write(`<!DOCTYPE html>
   <html lang="en">
     <head>
       <meta charset="utf-8">
@@ -79,13 +70,60 @@ app.use(function (req, res, next) {
       <noscript>
         You need to enable JavaScript to run this app.
       </noscript>
-      <div id="root">${markup}</div>
+      <div id="root">`);
+
+  let context = {};
+  const markupStream = renderToNodeStream((<Provider store={store}>
+    <StaticRouter
+      location={req.url}
+      context={context}
+    >
+      <App></App>
+    </StaticRouter>
+  </Provider>));
+
+  markupStream.pipe(res, {end: false});
+  markupStream.on('end', function () {
+    res.write(`</div>
       <script src="/${staticPath['main.js']}"></script>
     </body>
-  </html>
-  `;
+  </html>`);
+    res.end();
+  });
 
-  res.send(pageHTML);
+  // let context = {};
+  // const markup = renderToString((<Provider store={store}>
+  //   <StaticRouter
+  //     location={req.url}
+  //     context={context}
+  //   >
+  //     <App></App>
+  //   </StaticRouter>
+  // </Provider>));
+
+  // const pageHTML = `<!DOCTYPE html>
+  // <html lang="en">
+  //   <head>
+  //     <meta charset="utf-8">
+  //     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  //     <meta name="theme-color" content="#000000">
+  //     <meta name="keyword" content="React, Redux, SSR">
+  //     <meta name="description" content="基于 React 的求职招聘平台">
+  //     <meta name="author" content="savoygu">
+  //     <title>React App</title>
+  //     <link rel="stylesheet" href="/${staticPath['main.css']}"/>
+  //   </head>
+  //   <body>
+  //     <noscript>
+  //       You need to enable JavaScript to run this app.
+  //     </noscript>
+  //     <div id="root">${markup}</div>
+  //     <script src="/${staticPath['main.js']}"></script>
+  //   </body>
+  // </html>
+  // `;
+
+  // res.send(pageHTML);
   // return res.sendFile(path.resolve('build/index.html'));
 });
 app.use('/', express.static(path.resolve('build')));

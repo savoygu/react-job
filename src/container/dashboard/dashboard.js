@@ -3,7 +3,8 @@ import { connect } from 'react-redux';
 import { NavBar } from 'antd-mobile';
 import {
   Switch,
-  Route
+  Route,
+  Redirect
 } from 'react-router-dom';
 
 import { getMsgList, recvMsg } from '../../redux/chat.redux';
@@ -61,9 +62,9 @@ class Dashboard extends Component {
       }
     ];
     const page = navList.find(v => v.path === pathname);
-    return (
+    return page ? (
       <div className="container-dashboard">
-        <NavBar className='fixed-header' mode='dard'>{navList.find(v => v.path === pathname).title}</NavBar>
+        <NavBar className='fixed-header' mode='dard'>{page.title}</NavBar>
         <div style={{ marginTop: '45px' }}>
           <Switch>
             <Route key={page.path} path={page.path} component={page.component} />
@@ -71,7 +72,7 @@ class Dashboard extends Component {
         </div>
         <NavLinkBar data={navList}></NavLinkBar>
       </div>
-    );
+    ) : <Redirect to='/msg'></Redirect>;
   }
 }
 

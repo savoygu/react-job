@@ -13,8 +13,22 @@ import Dashboard from './container/dashboard/dashboard';
 import Chat from './component/chat/chat';
 
 class App extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			hasError: false
+		};
+	}
+	componentDidCatch(error, info) {
+		console.log(error, info);
+		this.setState({
+			hasError: true
+		});
+	}
   render() {
-    return (
+		return this.state.hasError 
+		? <img src={require('./job.png')} alt='error' />
+		: (
       <div>
 				<AuthRoute></AuthRoute>
 				<Switch>
