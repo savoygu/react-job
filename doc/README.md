@@ -120,7 +120,17 @@ app.use(function(req, res, next) {
 ### 5. 拼接 HTML
 
 ```html
-<!DOCTYPE html>
+let context = {};
+const markup = renderToString((<Provider store={store}>
+  <StaticRouter
+    location={req.url}
+    context={context}
+  >
+    <App></App>
+  </StaticRouter>
+</Provider>));
+
+const pageHTML = `<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -140,7 +150,51 @@ app.use(function(req, res, next) {
     <script src="/${staticPath['main.js']}"></script>
   </body>
 </html>
+`;
+
+res.send(pageHTML);
 ```
 
 ## 服务端渲染 React 16
 
+使用 `renderToNodeStream` 代替 `renderToString`
+使用 `ReactDOM.hydrate` 代替 `ReactDOM.render`
+
+```html
+res.write(`<!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+      <meta name="theme-color" content="#000000">
+      <meta name="keyword" content="React, Redux, SSR">
+      <meta name="description" content="基于 React 的求职招聘平台">
+      <meta name="author" content="savoygu">
+      <title>React App</title>
+      <link rel="stylesheet" href="/${staticPath['main.css']}"/>
+    </head>
+    <body>
+      <noscript>
+        You need to enable JavaScript to run this app.
+      </noscript>
+      <div id="root">`);
+
+  let context = {};
+  const markupStream = renderToNodeStream((<Provider store={store}>
+    <StaticRouter
+      location={req.url}
+      context={context}
+    >
+      <App></App>
+    </StaticRouter>
+  </Provider>));
+
+  markupStream.pipe(res, {end: false});
+  markupStream.on('end', function () {
+    res.write(`</div>
+      <script src="/${staticPath['main.js']}"></script>
+    </body>
+  </html>`);
+    res.end();
+  });
+```
